@@ -86,13 +86,13 @@
       ></i>
     </el-button>
     <audio
-        id="audiobg"
-        preload="auto"
-        controls
-        autoplay
-        loop
-        @play="playHandler"
-        @pause="pauseHandler"
+      id="audiobg"
+      preload="auto"
+      controls
+      autoplay
+      loop
+      @play="playHandler"
+      @pause="pauseHandler"
     >
       <source :src="audioSrc" />
       你的浏览器不支持audio标签
@@ -182,12 +182,14 @@ export default {
       const configNum = number > 1500 ? Math.floor(number / 3) : number;
       const randomShowNums = luckydrawHandler(configNum, [], nums);
       const randomShowDatas = randomShowNums.map(item => {
-        const listData = this.list.find(d => d.key === item);
-        const photo = this.photos.find(d => d.id === item);
+        const listData = this.data.dataArr.find(d => d.key === item);
+        const photo = this.data.dataArr.find(d => d.id === item);
         return {
           key: item * (number > 1500 ? 3 : 1),
           name: listData ? listData.name : '',
-          photo: photo ? photo.value : ''
+          photo: photo
+            ? photo.value
+            : 'https://zhj-front-picture.oss-cn-shenzhen.aliyuncs.com/20200819/33a5e79da40447fca753a6ac244a9f2a.svg'
         };
       });
       return randomShowDatas;
@@ -233,6 +235,7 @@ export default {
       showRes: false,
       showConfig: false,
       showResult: false,
+      dataArr: [],
       resArr: [],
       category: '',
       audioPlaying: false,
@@ -250,6 +253,9 @@ export default {
     }
   },
   mounted() {
+    // 定时获取抽奖名单
+    this.startGetDataList();
+
     this.startTagCanvas();
     setTimeout(() => {
       this.getPhoto();
@@ -260,6 +266,20 @@ export default {
     window.removeEventListener('resize', this.reportWindowSize);
   },
   methods: {
+    startGetDataList() {
+      let formData = new FormData();
+      formData.append('activityId', '081Enf1w3t0hJV24yP0w3CGK3L1Enf1W');
+      let params = formData;
+      this.$api
+        .post('/api/question/getAllUserByActivityId', params)
+        .then(res => {
+          console.log(res.data);
+          this.dataArr = res.data;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
     reportWindowSize() {
       const AppCanvas = this.$el.querySelector('#rootcanvas');
       if (AppCanvas.parentElement) {
