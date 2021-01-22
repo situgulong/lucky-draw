@@ -1,5 +1,6 @@
 <template>
   <div id="root">
+    <!--通用头部-->
     <header>
       <Publicity v-show="!running" />
       <el-button class="res" type="text" @click="showResult = true">
@@ -9,7 +10,9 @@
         抽奖配置
       </el-button>
     </header>
+    <!--canvas容器 -->
     <div id="main" :class="{ mask: showRes }"></div>
+    <!--抽奖队列-->
     <div id="tags">
       <ul v-for="item in datas" :key="item.key">
         <li>
@@ -25,6 +28,7 @@
         </li>
       </ul>
     </div>
+    <!--中奖结果特效-->
     <transition name="bounce">
       <div id="resbox" v-show="showRes">
         <p @click="showRes = false">{{ categoryName }}抽奖结果：</p>
@@ -66,7 +70,7 @@
         </div>
       </div>
     </transition>
-
+    <!--音频播放/按钮-->
     <el-button
       class="audio"
       type="text"
@@ -81,8 +85,21 @@
         :class="[audioPlaying ? 'iconstop' : 'iconplay1']"
       ></i>
     </el-button>
-
+    <audio
+        id="audiobg"
+        preload="auto"
+        controls
+        autoplay
+        loop
+        @play="playHandler"
+        @pause="pauseHandler"
+    >
+      <source :src="audioSrc" />
+      你的浏览器不支持audio标签
+    </audio>
+    <!--    奖项配置弹窗-->
     <LotteryConfig :visible.sync="showConfig" @resetconfig="reloadTagCanvas" />
+    <!--    工具弹窗-->
     <Tool
       @toggle="toggle"
       @resetConfig="reloadTagCanvas"
@@ -90,24 +107,12 @@
       :running="running"
       :closeRes="closeRes"
     />
+    <!--    结果弹窗-->
     <Result :visible.sync="showResult"></Result>
-
+    <!--    版权-->
     <span class="copy-right">
-      Copyright©zhangyongfeng5350@gmail.com
+      Copyright©智汇+
     </span>
-
-    <audio
-      id="audiobg"
-      preload="auto"
-      controls
-      autoplay
-      loop
-      @play="playHandler"
-      @pause="pauseHandler"
-    >
-      <source :src="audioSrc" />
-      你的浏览器不支持audio标签
-    </audio>
   </div>
 </template>
 <script>
@@ -302,7 +307,7 @@ export default {
       this.createCanvas();
       const { speed } = this;
       window.TagCanvas.Start('rootcanvas', 'tags', {
-        textColour: null,
+        textColour: undefined,
         initial: speed(),
         dragControl: 1,
         textHeight: 20,
